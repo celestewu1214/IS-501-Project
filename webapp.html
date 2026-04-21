@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mystic Archive</title>
+  <style>
+    :root {
+      --bg1: #0f172a;
+      --bg2: #1e293b;
+      --panel: rgba(15, 23, 42, 0.78);
+      --line: rgba(148, 163, 184, 0.25);
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --accent: #7c3aed;
+      --accent-2: #06b6d4;
+      --good: #22c55e;
+      --warn: #f59e0b;
+      --bad: #ef4444;
+      --shadow: 0 18px 50px rgba(0,0,0,0.35);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(124, 58, 237, 0.35), transparent 30%),
+        radial-gradient(circle at top right, rgba(6, 182, 212, 0.25), transparent 32%),
+        linear-gradient(160deg, var(--bg1), #020617 60%, var(--bg2));
+      overflow-x: hidden;
+    }
+
+    .stars, .stars::before, .stars::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        radial-gradient(2px 2px at 20px 30px, rgba(255,255,255,0.75), transparent),
+        radial-gradient(2px 2px at 40px 70px, rgba(255,255,255,0.4), transparent),
+        radial-gradient(1px 1px at 90px 40px, rgba(255,255,255,0.7), transparent),
+        radial-gradient(1px 1px at 140px 90px, rgba(255,255,255,0.45), transparent),
+        radial-gradient(2px 2px at 200px 160px, rgba(255,255,255,0.55), transparent);
+      background-size: 220px 220px;
+      opacity: 0.35;
+      animation: drift 70s linear infinite;
+    }
+
+    .stars::before { animation-duration: 95s; opacity: 0.2; transform: scale(1.2); }
+    .stars::after { animation-duration: 120s; opacity: 0.15; transform: scale(1.5); }
+
+    @keyframes drift {
+      from { transform: translateY(0); }
+      to { transform: translateY(-220px); }
+    }
+
+    .container {
+      width: min(1100px, calc(100% - 32px));
+      margin: 32px auto 48px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.25fr 0.95fr;
+      gap: 24px;
+      align-items: stretch;
+      margin-bottom: 24px;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+    }
+
+    .hero-main {
+      padding: 28px;
+    }
+
+    .eyebrow {
+      display: inline-block;
+      font-size: 0.82rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent-2);
+      margin-bottom: 10px;
+    }
+
+    h1 {
+      margin: 0 0 12px;
+      font-size: clamp(2rem, 4vw, 3.25rem);
+      line-height: 1.05;
+    }
+
+    .hero-main p {
+      color: var(--muted);
+      margin: 0 0 18px;
+      line-height: 1.65;
+      font-size: 1rem;
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    button {
+      border: none;
+      border-radius: 14px;
+      padding: 12px 16px;
+      font-size: 0.98rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.16s ease, opacity 0.16s ease, box-shadow 0.16s ease;
+    }
+
+    button:hover { transform: translateY(-1px); }
+    button:active { transform: translateY(1px) scale(0.99); }
+
+    .primary {
+      background: linear-gradient(135deg, var(--accent), #9333ea);
+      color: white;
+      box-shadow: 0 10px 25px rgba(124, 58, 237, 0.35);
+    }
+
+    .secondary {
+      background: rgba(30, 41, 59, 0.95);
+      color: var(--text);
+      border: 1px solid rgba(148, 163, 184, 0.25);
+    }
+
+    .hero-side {
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .stat {
+      background: rgba(15, 23, 42, 0.66);
+      border: 1px solid rgba(148, 163, 184, 0.18);
+      border-radius: 18px;
+      padding: 16px;
+    }
+
+    .stat-label {
+      color: var(--muted);
+      font-size: 0.88rem;
+      margin-bottom: 6px;
+    }
+
+    .stat-value {
+      font-size: 1.55rem;
+      font-weight: 800;
+    }
+
+    .quest-box {
+      background: linear-gradient(145deg, rgba(124, 58, 237, 0.18), rgba(6, 182, 212, 0.14));
+      border: 1px solid rgba(148, 163, 184, 0.18);
+      border-radius: 18px;
+      padding: 16px;
+    }
+
+    .quest-box h3 {
+      margin: 0 0 8px;
+      font-size: 1rem;
+    }
+
+    .quest-box p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 24px;
+    }
+
+    .panel {
+      padding: 22px;
+    }
+
+    .panel h2 {
+      margin: 0 0 16px;
+      font-size: 1.35rem;
+    }
+
+    .story-box {
+      min-height: 162px;
+      padding: 18px;
+      background: rgba(2, 6, 23, 0.56);
+      border: 1px solid rgba(148, 163, 184, 0.18);
+      border-radius: 18px;
+      color: var(--text);
+      line-height: 1.75;
+      white-space: pre-line;
+    }
+
+    .choices {
+      display: grid;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .choice {
+      width: 100%;
+      text-align: left;
+      background: rgba(15, 23, 42, 0.92);
+      border: 1px solid rgba(148, 163, 184, 0.18);
+      color: var(--text);
+      padding: 15px 16px;
+      border-radius: 16px;
+      font-weight: 600;
+    }
+
+    .choice:hover {
+      box-shadow: 0 10px 20px rgba(0,0,0,0.16);
+      border-color: rgba(6, 182, 212, 0.4);
+    }
+
+    .inventory {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .tag {
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(124, 58, 237, 0.18);
+      border: 1px solid rgba(167, 139, 250, 0.25);
+      font-size: 0.92rem;
+    }
+
+    .empty {
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    .log {
+      max-height: 240px;
+      overflow: auto;
+      padding-right: 6px;
+    }
+
+    .log-entry {
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .badge {
+      display: inline-block;
+      font-size: 0.76rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 4px 8px;
+      border-radius: 999px;
+      margin-right: 8px;
+      font-weight: 700;
+      vertical-align: middle;
+    }
+
+    .good { background: rgba(34, 197, 94, 0.16); color: #86efac; }
+    .warn { background: rgba(245, 158, 11, 0.16); color: #fcd34d; }
+    .bad { background: rgba(239, 68, 68, 0.16); color: #fca5a5; }
+
+    .footer-note {
+      color: var(--muted);
+      font-size: 0.93rem;
+      margin-top: 18px;
+      line-height: 1.6;
+    }
+
+    @media (max-width: 900px) {
+      .hero, .layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .container { width: min(100% - 18px, 1100px); margin-top: 14px; }
+      .hero-main, .hero-side, .panel { padding: 18px; }
+      .stat-grid { grid-template-columns: 1fr 1fr; }
+      h1 { font-size: 2rem; }
+    }
+  </style>
+</head>
+<body>
+    <div style="padding: 20px 20px 0 20px;">
+  <a href="scratch.html" style="color: white; text-decoration: none; font-weight: bold;">Back to Scratch Page</a>
+</div>
+  <div class="stars"></div>
+
+  <div class="container">
+    <section class="hero">
+      <div class="card hero-main">
+        <div class="eyebrow">AI-collaborative project</div>
+        <h1>Mystic Archive</h1>
+        <p>
+          This is a creative story game where each run generates a different magical artifact,
+          setting, and final outcome. Instead of being a basic joke or riddle generator,
+          it mixes random storytelling, player choice, score tracking, and replayability.
+        </p>
+        <div class="button-row">
+          <button class="primary" id="newRunBtn">Begin New Expedition</button>
+          <button class="secondary" id="themeBtn">Surprise Me</button>
+        </div>
+        <div class="footer-note">
+          Goal: recover a legendary artifact from the Archive by making choices that affect your energy,
+          wisdom, and inventory.
+        </div>
+      </div>
+
+      <aside class="card hero-side">
+        <div class="stat-grid">
+          <div class="stat">
+            <div class="stat-label">Energy</div>
+            <div class="stat-value" id="energyStat">10</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Wisdom</div>
+            <div class="stat-value" id="wisdomStat">0</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Artifacts Found</div>
+            <div class="stat-value" id="artifactStat">0</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Expeditions</div>
+            <div class="stat-value" id="runsStat">0</div>
+          </div>
+        </div>
+
+        <div class="quest-box">
+          <h3>Current mission</h3>
+          <p id="missionText">Press “Begin New Expedition” to enter the Mystic Archive.</p>
+        </div>
+      </aside>
+    </section>
+
+    <section class="layout">
+      <div class="card panel">
+        <h2>Story</h2>
+        <div class="story-box" id="storyBox">Your generated story will appear here.</div>
+        <div class="choices" id="choicesBox"></div>
+      </div>
+
+      <div class="card panel">
+        <h2>Explorer Journal</h2>
+        <strong>Inventory</strong>
+        <div class="inventory" id="inventoryBox">
+          <span class="empty">Nothing collected yet.</span>
+        </div>
+
+        <h2 style="margin-top: 24px;">Recent Events</h2>
+        <div class="log" id="logBox"></div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const energyStat = document.getElementById('energyStat');
+    const wisdomStat = document.getElementById('wisdomStat');
+    const artifactStat = document.getElementById('artifactStat');
+    const runsStat = document.getElementById('runsStat');
+    const missionText = document.getElementById('missionText');
+    const storyBox = document.getElementById('storyBox');
+    const choicesBox = document.getElementById('choicesBox');
+    const inventoryBox = document.getElementById('inventoryBox');
+    const logBox = document.getElementById('logBox');
+    const newRunBtn = document.getElementById('newRunBtn');
+    const themeBtn = document.getElementById('themeBtn');
+
+    const themes = [
+      'starlight', 'fog', 'mirrors', 'thunder', 'moonstone', 'clockwork', 'ember', 'crystal'
+    ];
+
+    const places = [
+      'the Observatory of Whispers',
+      'the Sunken Library',
+      'the Clocktower Vault',
+      'the Forest of Glass Leaves',
+      'the Moonlit Catacombs',
+      'the Storm Shrine'
+    ];
+
+    const artifacts = [
+      'Compass of Dawn',
+      'Lantern of Echoes',
+      'Crown of Quiet Tides',
+      'Mirror of Second Chances',
+      'Feather of the Phoenix Mapmaker',
+      'Key of Sleeping Stars'
+    ];
+
+    const companions = [
+      'a skeptical fox spirit',
+      'an overly confident robot historian',
+      'a raven carrying tiny scrolls',
+      'a ghost librarian with perfect memory',
+      'a moss-covered golem humming softly'
+    ];
+
+    const supplies = [
+      'silver chalk', 'moon tea', 'a brass key', 'glow thread', 'stormberries', 'ink map'
+    ];
+
+    const endings = [
+      'You escape with the artifact and become the newest keeper of the Archive.',
+      'You trade the artifact for forbidden knowledge and leave wiser than before.',
+      'You return the artifact, and the Archive secretly marks you as a trusted guardian.',
+      'You barely make it out, but your journal becomes legendary among future explorers.'
+    ];
+
+    const state = {
+      energy: 10,
+      wisdom: 0,
+      artifactsFound: 0,
+      expeditionCount: 0,
+      inventory: [],
+      log: [],
+      currentScene: 0,
+      place: '',
+      artifact: '',
+      companion: '',
+      theme: ''
+    };
+
+    function randomItem(list) {
+      return list[Math.floor(Math.random() * list.length)];
+    }
+
+    function addLog(text, type = 'warn') {
+      state.log.unshift({ text, type });
+      state.log = state.log.slice(0, 8);
+      renderLog();
+    }
+
+    function renderLog() {
+      logBox.innerHTML = '';
+      if (state.log.length === 0) {
+        logBox.innerHTML = '<div class="log-entry">No events yet.</div>';
+        return;
+      }
+      state.log.forEach(entry => {
+        const div = document.createElement('div');
+        div.className = 'log-entry';
+        div.innerHTML = `<span class="badge ${entry.type}">${entry.type}</span>${entry.text}`;
+        logBox.appendChild(div);
+      });
+    }
+
+    function renderInventory() {
+      inventoryBox.innerHTML = '';
+      if (state.inventory.length === 0) {
+        inventoryBox.innerHTML = '<span class="empty">Nothing collected yet.</span>';
+        return;
+      }
+      state.inventory.forEach(item => {
+        const tag = document.createElement('span');
+        tag.className = 'tag';
+        tag.textContent = item;
+        inventoryBox.appendChild(tag);
+      });
+    }
+
+    function updateStats() {
+      energyStat.textContent = state.energy;
+      wisdomStat.textContent = state.wisdom;
+      artifactStat.textContent = state.artifactsFound;
+      runsStat.textContent = state.expeditionCount;
+      renderInventory();
+    }
+
+    function setStory(text) {
+      storyBox.textContent = text;
+    }
+
+    function setChoices(options) {
+      choicesBox.innerHTML = '';
+      options.forEach(option => {
+        const btn = document.createElement('button');
+        btn.className = 'choice';
+        btn.textContent = option.label;
+        btn.addEventListener('click', option.action);
+        choicesBox.appendChild(btn);
+      });
+    }
+
+    function loseEnergy(amount) {
+      state.energy = Math.max(0, state.energy - amount);
+    }
+
+    function gainWisdom(amount) {
+      state.wisdom += amount;
+    }
+
+    function addItem(item) {
+      if (!state.inventory.includes(item)) {
+        state.inventory.push(item);
+      }
+    }
+
+    function startExpedition() {
+      state.energy = 10;
+      state.wisdom = 0;
+      state.inventory = [];
+      state.log = [];
+      state.currentScene = 1;
+      state.place = randomItem(places);
+      state.artifact = randomItem(artifacts);
+      state.companion = randomItem(companions);
+      state.theme = randomItem(themes);
+      state.expeditionCount += 1;
+
+      missionText.textContent = `Recover the ${state.artifact} from ${state.place}.`;
+
+      addItem(randomItem(supplies));
+      addLog(`You enter ${state.place} with ${state.companion}.`, 'good');
+      updateStats();
+
+      setStory(
+        `A ${state.theme}-colored mist curls around the entrance to ${state.place}. ` +
+        `You carry ${state.inventory[0]}, and beside you walks ${state.companion}. ` +
+        `Somewhere deep inside rests the ${state.artifact}.\n\n` +
+        `At the first chamber, two paths appear.`
+      );
+
+      setChoices([
+        {
+          label: 'Take the glowing staircase',
+          action: () => sceneTwo('stairs')
+        },
+        {
+          label: 'Follow the whispering hallway',
+          action: () => sceneTwo('hallway')
+        }
+      ]);
+    }
+
+    function sceneTwo(path) {
+      state.currentScene = 2;
+      if (path === 'stairs') {
+        loseEnergy(2);
+        gainWisdom(1);
+        addItem('glass shard clue');
+        addLog('The staircase drains your strength but reveals hidden symbols.', 'warn');
+        setStory(
+          `The glowing staircase spirals upward far longer than it should. ` +
+          `Your legs ache, but etched into the railing are clues about the ${state.artifact}.\n\n` +
+          `At the top, you discover a locked chamber pulsing with blue light.`
+        );
+      } else {
+        loseEnergy(1);
+        gainWisdom(2);
+        addItem('whisper cipher');
+        addLog('The hallway teaches you fragments of an ancient password.', 'good');
+        setStory(
+          `The whispering hallway repeats pieces of a forgotten language. ` +
+          `By listening carefully, you piece together a cipher that may unlock deeper vaults.\n\n` +
+          `Ahead, a guardian shadow blocks the final corridor.`
+        );
+      }
+
+      updateStats();
+      setChoices([
+        {
+          label: 'Negotiate with the guardian',
+          action: sceneThreeDiplomacy
+        },
+        {
+          label: 'Try to outsmart the trap mechanisms',
+          action: sceneThreePuzzle
+        }
+      ]);
+    }
+
+    function sceneThreeDiplomacy() {
+      state.currentScene = 3;
+      const success = Math.random() < 0.55 || state.wisdom >= 2;
+
+      if (success) {
+        gainWisdom(2);
+        addItem('guardian blessing');
+        addLog('Your calm words convince the guardian to step aside.', 'good');
+        setStory(
+          `The guardian studies you in silence. You offer truth instead of bravery. ` +
+          `After a long pause, it nods and grants you safe passage, leaving behind a blessing mark.\n\n` +
+          `The vault door to the ${state.artifact} now stands open.`
+        );
+      } else {
+        loseEnergy(3);
+        addLog('The guardian rejects your plea, and escaping costs precious energy.', 'bad');
+        setStory(
+          `The guardian is not impressed. Its voice shakes the floor as you retreat from a burst of force. ` +
+          `You survive, but only after exhausting yourself.\n\n` +
+          `A narrow maintenance tunnel offers one last way to the vault.`
+        );
+      }
+
+      updateStats();
+      finalScene();
+    }
+
+    function sceneThreePuzzle() {
+      state.currentScene = 3;
+      const success = Math.random() < 0.5 || state.inventory.includes('whisper cipher') || state.inventory.includes('glass shard clue');
+
+      if (success) {
+        gainWisdom(3);
+        addItem('decoded map');
+        addLog('You solve the mechanism and chart a secret route to the vault.', 'good');
+        setStory(
+          `The walls click, rotate, and reveal hidden gears. Using your clues, you align the symbols exactly right. ` +
+          `A hidden route opens beneath the floor.\n\n` +
+          `You descend straight toward the resting place of the ${state.artifact}.`
+        );
+      } else {
+        loseEnergy(2);
+        addLog('A trap activates, forcing you to improvise and crawl forward anyway.', 'warn');
+        setStory(
+          `You almost solve the pattern, but one symbol slips out of alignment. ` +
+          `A trap sparks to life and sends you scrambling through smoke and loose stone.\n\n` +
+          `Even so, the vault is now within reach.`
+        );
+      }
+
+      updateStats();
+      finalScene();
+    }
+
+    function finalScene() {
+      setChoices([
+        {
+          label: 'Claim the artifact for yourself',
+          action: () => finishRun('keep')
+        },
+        {
+          label: 'Return the artifact to protect the Archive',
+          action: () => finishRun('return')
+        }
+      ]);
+    }
+
+    function finishRun(choice) {
+      const alive = state.energy > 0;
+      let endingText = '';
+
+      if (!alive) {
+        endingText = `You reach the chamber of the ${state.artifact}, but collapse from exhaustion before leaving. ` +
+          `Still, your notes survive, and future explorers learn from your attempt.`;
+        addLog('You found the vault, but ran out of energy before escaping.', 'bad');
+      } else {
+        state.artifactsFound += 1;
+        if (choice === 'keep') {
+          endingText = `You seize the ${state.artifact}, and its power lights the chamber in brilliant ${state.theme} patterns. ` +
+            `${randomItem(endings)}`;
+          addLog(`You claim the ${state.artifact}.`, 'good');
+        } else {
+          gainWisdom(2);
+          endingText = `You place the ${state.artifact} back onto its altar and seal the chamber with care. ` +
+            `The Archive rewards your restraint with secret knowledge and a safe path home.`;
+          addLog(`You protect the ${state.artifact} instead of taking it.`, 'good');
+        }
+      }
+
+      updateStats();
+      setStory(
+        `Final Report:\n\n${endingText}\n\n` +
+        `Energy: ${state.energy}\nWisdom: ${state.wisdom}\nInventory items: ${state.inventory.length}`
+      );
+
+      missionText.textContent = alive
+        ? `Expedition complete. You encountered ${state.place} and the ${state.artifact}.`
+        : `Expedition failed, but your journal preserved the mystery of ${state.place}.`;
+
+      setChoices([
+        {
+          label: 'Play Again with a New Story',
+          action: startExpedition
+        }
+      ]);
+    }
+
+    function surpriseTheme() {
+      const accents = [
+        ['#7c3aed', '#06b6d4'],
+        ['#f97316', '#eab308'],
+        ['#10b981', '#3b82f6'],
+        ['#ec4899', '#8b5cf6'],
+        ['#22c55e', '#14b8a6']
+      ];
+      const pair = randomItem(accents);
+      document.documentElement.style.setProperty('--accent', pair[0]);
+      document.documentElement.style.setProperty('--accent-2', pair[1]);
+      addLog('The Archive shifts its magical color palette.', 'warn');
+    }
+
+    newRunBtn.addEventListener('click', startExpedition);
+    themeBtn.addEventListener('click', surpriseTheme);
+
+    renderLog();
+    updateStats();
+  </script>
+</body>
+</html>
